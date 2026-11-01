@@ -60,14 +60,11 @@ export default function ChampionPocket() {
             href="https://www.youtube.com/@Faresgaming500"
             target="_blank"
             rel="noreferrer"
-            className="inline-flex items-center gap-2 px-5 py-2.5 rounded-full text-xs font-semibold shadow-sm transition-all duration-200 hover:opacity-90 dark:!bg-white/[0.1] dark:!text-white dark:border dark:border-white/10"
-            style={{
-              backgroundColor: '#090d16',
-              color: '#ffffff',
-            }}
+            className="inline-flex items-center gap-2.5 px-5 py-2.5 rounded-full text-xs font-bold tracking-wide shadow-md transition-all duration-200 hover:-translate-y-0.5 bg-[#090d16] text-white hover:bg-[#151c2c] border border-[#1e283d] dark:bg-white/[0.08] dark:hover:bg-white/[0.14] dark:border-white/10 dark:text-white group"
           >
+            <Youtube className="w-4 h-4 text-red-500 fill-current shrink-0 group-hover:scale-110 transition-transform" />
             <span>All YouTube Videos</span>
-            <ExternalLink className="w-3.5 h-3.5 opacity-80" />
+            <ExternalLink className="w-3.5 h-3.5 opacity-80 group-hover:opacity-100 group-hover:translate-x-0.5 transition-all" />
           </a>
         </div>
 
@@ -105,19 +102,15 @@ export default function ChampionPocket() {
                   {champ.description}
                 </p>
 
-                {/* Direct Action Button - Solid dark black/navy pill with white text & red YouTube icon */}
+                {/* Direct Action Button - Solid dark black/navy button with white text & red YouTube icon */}
                 <a
                   href={champ.youtubeUrl}
                   target="_blank"
                   rel="noreferrer"
-                  className="w-full py-3 px-4 rounded-xl text-xs font-semibold flex items-center justify-between shadow-md transition-all duration-200 hover:opacity-90 dark:!bg-white/[0.1] dark:!text-white dark:border dark:border-white/15 group/btn"
-                  style={{
-                    backgroundColor: '#090d16',
-                    color: '#ffffff',
-                  }}
+                  className="w-full py-3 px-4 rounded-xl text-xs font-bold flex items-center justify-between shadow-md transition-all duration-200 bg-[#090d16] text-white hover:bg-[#151c2c] border border-[#1e283d] hover:-translate-y-0.5 dark:bg-white/[0.08] dark:hover:bg-white/[0.14] dark:border-white/15 dark:text-white group/btn"
                 >
                   <span className="flex items-center gap-2">
-                    <Youtube className="w-4 h-4 text-red-500 fill-current shrink-0" />
+                    <Youtube className="w-4 h-4 text-red-500 fill-current shrink-0 group-hover/btn:scale-110 transition-transform" />
                     <span className="font-bold tracking-wide text-white">{champ.videoLabel}</span>
                   </span>
                   <ExternalLink className="w-3.5 h-3.5 text-white/80 group-hover/btn:text-white group-hover/btn:translate-x-0.5 transition-all shrink-0" />

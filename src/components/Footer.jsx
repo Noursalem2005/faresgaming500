@@ -69,9 +69,11 @@ export default function Footer() {
         {/* Creator Identity & Official Socials */}
         <div className="flex flex-col lg:flex-row items-start lg:items-center justify-between gap-6 pb-8 border-b border-[var(--border-line)]">
           <div>
-            <h3 className="text-xl font-bold text-[var(--text-main)] font-display tracking-tight">
-              Fares Gaming
-            </h3>
+            <a href="#top" className="group inline-flex items-center gap-2" title="Back to top">
+              <h3 className="text-xl font-bold text-[var(--text-main)] group-hover:text-[var(--accent-blue)] transition-colors font-display tracking-tight">
+                Fares Gaming
+              </h3>
+            </a>
             <p className="text-xs text-[var(--text-muted)] mt-1">
               Official channels and social media profiles.
             </p>
@@ -79,30 +81,45 @@ export default function Footer() {
 
           {/* Social Channels Row - Clean, respectable minimal pill design */}
           <div className="flex flex-wrap items-center gap-2.5">
-            {socials.map((social) => (
-              <a
-                key={social.name}
-                href={social.url}
-                target="_blank"
-                rel="noreferrer"
-                className="group inline-flex items-center gap-2 px-3.5 py-2 rounded-lg bg-[var(--bg-card)] hover:bg-[var(--bg-card-hover)] border border-[var(--border-line)] hover:border-[var(--text-muted)]/30 text-[var(--text-muted)] hover:text-[var(--text-main)] transition-all duration-200 text-xs font-medium shadow-sm hover:-translate-y-0.5"
-              >
-                <span className="shrink-0 transition-colors group-hover:text-[var(--text-main)]">
-                  {social.icon}
-                </span>
-                <span className="font-semibold text-xs text-[var(--text-main)]">
-                  {social.name}
-                </span>
-                <ArrowUpRight className="w-3 h-3 opacity-40 group-hover:opacity-100 group-hover:translate-x-0.5 group-hover:-translate-y-0.5 transition-all duration-200 shrink-0 ml-0.5" />
-              </a>
-            ))}
+            {socials.map((social) => {
+              const isYoutube = social.name === 'YouTube';
+              return (
+                <a
+                  key={social.name}
+                  href={social.url}
+                  target="_blank"
+                  rel="noreferrer"
+                  className={
+                    isYoutube
+                      ? "group inline-flex items-center gap-2 px-3.5 py-2 rounded-lg bg-[#090d16] text-white border border-[#1e283d] hover:bg-[#151c2c] dark:bg-white/[0.08] dark:hover:bg-white/[0.14] dark:border-white/10 dark:text-white transition-all duration-200 text-xs font-semibold shadow-sm hover:-translate-y-0.5"
+                      : "group inline-flex items-center gap-2 px-3.5 py-2 rounded-lg bg-[var(--bg-card)] hover:bg-[var(--bg-card-hover)] border border-[var(--border-line)] hover:border-[var(--text-muted)]/30 text-[var(--text-muted)] hover:text-[var(--text-main)] transition-all duration-200 text-xs font-medium shadow-sm hover:-translate-y-0.5"
+                  }
+                >
+                  <span className={`shrink-0 transition-colors ${isYoutube ? 'text-red-500' : 'group-hover:text-[var(--text-main)]'}`}>
+                    {social.icon}
+                  </span>
+                  <span className={`text-xs ${isYoutube ? 'font-bold text-white' : 'font-semibold text-[var(--text-main)]'}`}>
+                    {social.name}
+                  </span>
+                  <ArrowUpRight className={`w-3 h-3 ${isYoutube ? 'text-white/60 group-hover:text-white' : 'opacity-40 group-hover:opacity-100'} group-hover:translate-x-0.5 group-hover:-translate-y-0.5 transition-all duration-200 shrink-0 ml-0.5`} />
+                </a>
+              );
+            })}
           </div>
         </div>
 
         {/* Bottom Micro Bar */}
         <div className="pt-6 flex flex-col sm:flex-row items-center justify-between gap-3 text-[11px] font-mono text-[var(--text-muted)]">
           <span>© {new Date().getFullYear()} Fares Gaming · Master Tier Jungle EUW</span>
-          <span>League of Legends is a trademark of Riot Games, Inc.</span>
+          <div className="flex items-center gap-6">
+            <span>League of Legends is a trademark of Riot Games, Inc.</span>
+            <a
+              href="#top"
+              className="inline-flex items-center gap-1 text-[var(--accent-blue)] hover:underline font-sans font-semibold cursor-pointer"
+            >
+              <span>Back to Top ↑</span>
+            </a>
+          </div>
         </div>
 
       </div>

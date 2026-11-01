@@ -2,6 +2,10 @@
 @tailwind components;
 @tailwind utilities;
 
+html {
+  scroll-behavior: smooth;
+}
+
 :root {
   /* LIGHT THEME (Kunain Signature Cool Paper & Sapphire) */
   --bg-page: #e6e9ee;

@@ -60,7 +60,7 @@ export default function Navbar({ isDarkMode, onToggleTheme }) {
             href="https://www.youtube.com/@Faresgaming500"
             target="_blank"
             rel="noreferrer"
-            className="p-2 rounded-full text-[var(--text-muted)] hover:text-red-500 hover:bg-[var(--border-line)] transition-all"
+            className="p-2 rounded-full text-red-600 hover:text-white hover:bg-red-600 transition-all flex items-center justify-center"
             title="YouTube: @Faresgaming500"
           >
             <Youtube className="w-4 h-4 fill-current" />

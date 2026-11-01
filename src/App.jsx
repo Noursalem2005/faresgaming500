@@ -22,16 +22,61 @@ export default function App() {
       easing: (t) => Math.min(1, 1.001 - Math.pow(2, -10 * t)),
       orientation: 'vertical',
       smoothWheel: true,
+      smoothTouch: false,
     });
+
+    window.__lenis = lenis;
 
     function raf(time) {
       lenis.raf(time);
       requestAnimationFrame(raf);
     }
-    requestAnimationFrame(raf);
+    const rafId = requestAnimationFrame(raf);
+
+    // Smooth scroll for all internal anchor links (#top, #coaching, #champions, #about, etc.)
+    const handleAnchorClick = (e) => {
+      const anchor = e.target.closest('a[href^="#"]');
+      if (!anchor) return;
+
+      const href = anchor.getAttribute('href');
+      if (!href) return;
+
+      e.preventDefault();
+
+      if (href === '#' || href === '#top') {
+        lenis.scrollTo(0, { duration: 1.2, offset: 0 });
+        try {
+          history.replaceState(null, '', ' ');
+        } catch {}
+        return;
+      }
+
+      try {
+        const target = document.querySelector(href);
+        if (target) {
+          // -72px offset for the fixed navbar clearance
+          lenis.scrollTo(target, { duration: 1.2, offset: -72 });
+          try {
+            history.replaceState(null, '', href);
+          } catch {}
+        }
+      } catch (err) {
+        // Fallback for special selector edge cases
+        const id = href.replace('#', '');
+        const target = document.getElementById(id);
+        if (target) {
+          lenis.scrollTo(target, { duration: 1.2, offset: -72 });
+        }
+      }
+    };
+
+    document.addEventListener('click', handleAnchorClick);
 
     return () => {
+      document.removeEventListener('click', handleAnchorClick);
+      cancelAnimationFrame(rafId);
       lenis.destroy();
+      delete window.__lenis;
     };
   }, []);
 
