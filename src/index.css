@@ -219,3 +219,25 @@ body {
 .dark .kunain-card:hover {
   box-shadow: 0 16px 36px -10px rgba(0, 0, 0, 0.6);
 }
+
+/* Explicit YouTube Button & Typography System */
+.yt-button {
+  background-color: #ffffff !important;
+  color: #0b1230 !important;
+  border: 1px solid #c3cad8 !important;
+}
+.yt-button, .yt-button span, .yt-button p, .yt-button a {
+  color: #0b1230 !important;
+}
+.yt-button:hover {
+  background-color: #f1f4f9 !important;
+  border-color: #9ba8bc !important;
+}
+.dark .yt-button {
+  background-color: rgba(255, 255, 255, 0.08) !important;
+  color: #ffffff !important;
+  border-color: rgba(255, 255, 255, 0.15) !important;
+}
+.dark .yt-button, .dark .yt-button span, .dark .yt-button p, .dark .yt-button a {
+  color: #ffffff !important;
+}

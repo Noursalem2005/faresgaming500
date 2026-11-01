@@ -1,4 +1,5 @@
 import React, { useEffect, useRef, useState } from 'react';
+import sound from '../utils/audio';
 
 export default function IntroSequence({ onDone, enabled = true }) {
   const canvasRef = useRef(null);
@@ -7,122 +8,8 @@ export default function IntroSequence({ onDone, enabled = true }) {
   const hasFinishedRef = useRef(false);
   const animRef = useRef(null);
 
-  // Sound triggers & AudioContext ref
-  const audioCtxRef = useRef(null);
   const playedStreak1Audio = useRef(false);
   const playedStreak2Audio = useRef(false);
-  const playedImpactAudio = useRef(false);
-
-  const getAudioContext = () => {
-    if (!audioCtxRef.current) {
-      const AudioCtx = window.AudioContext || window.webkitAudioContext;
-      if (AudioCtx) {
-        audioCtxRef.current = new AudioCtx();
-      }
-    }
-    if (audioCtxRef.current && audioCtxRef.current.state === 'suspended') {
-      audioCtxRef.current.resume().catch(() => {});
-    }
-    return audioCtxRef.current;
-  };
-
-  // High-impact sword slash sound (Hybrid: HTML5 Audio + Web Audio API synthesizer)
-  const playBladeSlash = (pitch = 1.0, intensity = 1.0) => {
-    // 1. Direct HTML5 Audio playback for maximum compatibility
-    try {
-      const slashAudio = new Audio('/assets/slash.wav');
-      slashAudio.volume = Math.min(1, 0.65 * intensity);
-      slashAudio.playbackRate = pitch;
-      slashAudio.play().catch(() => {});
-    } catch {}
-
-    // 2. Procedural Web Audio API synthesizer for the whoosh + steel slice
-    const ctx = getAudioContext();
-    if (!ctx) return;
-
-    try {
-      const t = ctx.currentTime;
-
-      // Air displacement / Whoosh (filtered noise sweep)
-      const bufferSize = Math.floor(ctx.sampleRate * 0.32);
-      const noiseBuffer = ctx.createBuffer(1, bufferSize, ctx.sampleRate);
-      const output = noiseBuffer.getChannelData(0);
-      for (let i = 0; i < bufferSize; i++) {
-        output[i] = Math.random() * 2 - 1;
-      }
-
-      const whiteNoise = ctx.createBufferSource();
-      whiteNoise.buffer = noiseBuffer;
-
-      const filter = ctx.createBiquadFilter();
-      filter.type = 'bandpass';
-      filter.frequency.setValueAtTime(3400 * pitch, t);
-      filter.frequency.exponentialRampToValueAtTime(320 * pitch, t + 0.26);
-      filter.Q.setValueAtTime(3.2, t);
-
-      const noiseGain = ctx.createGain();
-      noiseGain.gain.setValueAtTime(0.001, t);
-      noiseGain.gain.linearRampToValueAtTime(0.42 * intensity, t + 0.03);
-      noiseGain.gain.exponentialRampToValueAtTime(0.0001, t + 0.3);
-
-      whiteNoise.connect(filter);
-      filter.connect(noiseGain);
-      noiseGain.connect(ctx.destination);
-
-      whiteNoise.start(t);
-      whiteNoise.stop(t + 0.32);
-
-      // Steel blade resonance (metallic edge)
-      const steelOsc = ctx.createOscillator();
-      steelOsc.type = 'sine';
-      steelOsc.frequency.setValueAtTime(2100 * pitch, t);
-      steelOsc.frequency.exponentialRampToValueAtTime(1100 * pitch, t + 0.2);
-
-      const steelGain = ctx.createGain();
-      steelGain.gain.setValueAtTime(0.001, t);
-      steelGain.gain.linearRampToValueAtTime(0.22 * intensity, t + 0.02);
-      steelGain.gain.exponentialRampToValueAtTime(0.0001, t + 0.24);
-
-      steelOsc.connect(steelGain);
-      steelGain.connect(ctx.destination);
-
-      steelOsc.start(t);
-      steelOsc.stop(t + 0.25);
-    } catch {}
-  };
-
-  const playBladeImpact = () => {
-    const ctx = getAudioContext();
-    if (!ctx) return;
-
-    try {
-      const t = ctx.currentTime;
-
-      const osc1 = ctx.createOscillator();
-      osc1.type = 'triangle';
-      osc1.frequency.setValueAtTime(2600, t);
-      osc1.frequency.exponentialRampToValueAtTime(1300, t + 0.35);
-
-      const osc2 = ctx.createOscillator();
-      osc2.type = 'sine';
-      osc2.frequency.setValueAtTime(3800, t);
-      osc2.frequency.exponentialRampToValueAtTime(1900, t + 0.45);
-
-      const gain = ctx.createGain();
-      gain.gain.setValueAtTime(0.001, t);
-      gain.gain.linearRampToValueAtTime(0.26, t + 0.02);
-      gain.gain.exponentialRampToValueAtTime(0.0001, t + 0.48);
-
-      osc1.connect(gain);
-      osc2.connect(gain);
-      gain.connect(ctx.destination);
-
-      osc1.start(t);
-      osc2.start(t);
-      osc1.stop(t + 0.5);
-      osc2.stop(t + 0.5);
-    } catch {}
-  };
 
   const finishIntro = () => {
     if (hasFinishedRef.current) return;
@@ -139,10 +26,10 @@ export default function IntroSequence({ onDone, enabled = true }) {
       return;
     }
 
-    // Try to unlock audio context immediately on mount & on first interaction
-    getAudioContext();
+    // Initialize & unlock Web Audio on first user interaction or mount
+    sound.init();
     const unlockAudio = () => {
-      getAudioContext();
+      sound.init();
     };
     window.addEventListener('pointerdown', unlockAudio, { once: true });
     window.addEventListener('keydown', unlockAudio, { once: true });
@@ -193,11 +80,11 @@ export default function IntroSequence({ onDone, enabled = true }) {
       const elapsed = now - startTime;
       ctx.clearRect(0, 0, width, height);
 
-      // Streak 1 (300ms to 950ms) + Sound
+      // Streak 1 (300ms to 950ms) + Original Cool Blade Slash Sound
       if (elapsed >= 300) {
         if (!playedStreak1Audio.current) {
           playedStreak1Audio.current = true;
-          playBladeSlash(1.0, 1.0);
+          sound.playBladeSlash();
         }
       }
 
@@ -235,11 +122,11 @@ export default function IntroSequence({ onDone, enabled = true }) {
         ctx.restore();
       }
 
-      // Streak 2 (480ms to 1100ms) + Sound
+      // Streak 2 (480ms to 1100ms) + Original Cool Blade Slash Sound
       if (elapsed >= 480) {
         if (!playedStreak2Audio.current) {
           playedStreak2Audio.current = true;
-          playBladeSlash(1.18, 0.95);
+          sound.playBladeSlash();
         }
       }
 
@@ -266,14 +153,7 @@ export default function IntroSequence({ onDone, enabled = true }) {
         ctx.restore();
       }
 
-      // Cross Glint Flash (650ms to 900ms) + Metallic Strike
-      if (elapsed >= 650) {
-        if (!playedImpactAudio.current) {
-          playedImpactAudio.current = true;
-          playBladeImpact();
-        }
-      }
-
+      // Cross Glint Flash (650ms to 900ms)
       if (elapsed >= 650 && elapsed <= 900) {
         const flashProgress = (elapsed - 650) / 250;
         const flashAlpha = Math.sin(flashProgress * Math.PI) * 0.8;
