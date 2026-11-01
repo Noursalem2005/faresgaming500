@@ -64,15 +64,15 @@ export default function HeroSection() {
               <span>Book a Consultation</span>
             </a>
 
-            {/* 2. Watch on YouTube - Dark obsidian button in light mode, high contrast */}
+            {/* 2. Watch on YouTube - Dark text in light mode, white text in dark mode */}
             <a
               href="https://www.youtube.com/@Faresgaming500"
               target="_blank"
               rel="noreferrer"
-              className="pill text-xs py-3 px-6 font-bold tracking-wide flex items-center gap-2 bg-[#090d16] text-white hover:bg-[#151c2c] border border-[#1e283d] shadow-md hover:-translate-y-0.5 transition-all duration-200 dark:bg-white/[0.08] dark:hover:bg-white/[0.14] dark:border-white/10 dark:text-white group"
+              className="pill text-xs py-3 px-6 font-bold tracking-wide flex items-center gap-2 bg-white text-[#0b1230] border border-[#c3cad8] hover:bg-[#f1f4f9] hover:border-[#9ba8bc] shadow-sm hover:-translate-y-0.5 transition-all duration-200 dark:bg-white/[0.08] dark:hover:bg-white/[0.14] dark:border-white/10 dark:text-white group"
             >
-              <Youtube className="w-4 h-4 text-red-500 fill-current shrink-0 group-hover:scale-110 transition-transform" />
-              <span>Watch on YouTube</span>
+              <Youtube className="w-4 h-4 text-red-600 fill-current shrink-0 group-hover:scale-110 transition-transform" />
+              <span className="font-bold text-[#0b1230] dark:text-white">Watch on YouTube</span>
             </a>
             
           </div>
