@@ -55,9 +55,11 @@ export default function Footer() {
       {/* Clean Viego Cutout Accent in Footer - Clear & visible in light mode */}
       <div className="pointer-events-none absolute right-[-1vw] bottom-0 w-[32vw] max-w-[290px] h-[88%] z-0 opacity-40 dark:opacity-25 select-none transition-opacity duration-300">
         <img
-          src="/assets/viego-transparent.png?v=2"
+          src="/assets/viego-transparent.webp"
           alt="Viego"
           className="w-full h-full object-contain object-right-bottom"
+          loading="lazy"
+          decoding="async"
           style={{
             filter: 'drop-shadow(0 10px 25px rgba(11, 18, 48, 0.2)) contrast(1.05)',
           }}

@@ -24,9 +24,12 @@ export default function HeroSection() {
       {/* 3. Static & Enlarged 3D Viego Stage with signature spectral cyan glow & bottom fade */}
       <div className="hero__fig z-[5] select-none pointer-events-none">
         <img
-          src="/assets/viego-transparent.png?v=2"
+          src="/assets/viego-transparent.webp"
           alt="The Ruined King Viego"
           className="w-full h-full object-contain object-right-bottom transition-all duration-300"
+          fetchPriority="high"
+          loading="eager"
+          decoding="async"
           style={{
             // Signature ethereal cyan & sapphire rim glow matching his Ruined King theme
             filter: 'drop-shadow(0 0 16px rgba(56, 189, 248, 0.45)) drop-shadow(0 0 38px rgba(30, 75, 209, 0.25)) drop-shadow(0 25px 50px rgba(0, 0, 0, 0.38))',
@@ -34,7 +37,6 @@ export default function HeroSection() {
             maskImage: 'linear-gradient(to bottom, black 0%, black 50%, rgba(0,0,0,0.7) 68%, rgba(0,0,0,0.2) 85%, transparent 100%)',
             WebkitMaskImage: 'linear-gradient(to bottom, black 0%, black 50%, rgba(0,0,0,0.7) 68%, rgba(0,0,0,0.2) 85%, transparent 100%)',
           }}
-          loading="eager"
         />
       </div>
 

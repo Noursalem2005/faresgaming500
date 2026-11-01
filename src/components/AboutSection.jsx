@@ -40,9 +40,11 @@ export default function AboutSection() {
 
         {/* The Dominant 3D Render: Monumental sword, boots, and crown dissolving into the floor */}
         <img
-          src="/assets/viego-crimson.png"
+          src="/assets/viego-crimson.webp"
           alt="Crimson Ruined King Viego"
           className="w-full h-full object-contain object-bottom lg:object-right-bottom transition-all duration-300"
+          loading="lazy"
+          decoding="async"
           style={{
             // Organic fiery rim glow directly on the silhouette
             filter: 'drop-shadow(0 0 16px rgba(239, 68, 68, 0.55)) drop-shadow(0 0 45px rgba(220, 38, 38, 0.35)) drop-shadow(0 25px 60px rgba(11, 18, 48, 0.28)) brightness(1.03) contrast(1.05)',
@@ -50,7 +52,6 @@ export default function AboutSection() {
             maskImage: 'linear-gradient(to bottom, black 0%, black 86%, rgba(0,0,0,0.4) 94%, transparent 100%)',
             WebkitMaskImage: 'linear-gradient(to bottom, black 0%, black 86%, rgba(0,0,0,0.4) 94%, transparent 100%)',
           }}
-          loading="eager"
         />
       </div>
 

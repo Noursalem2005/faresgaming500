@@ -10,7 +10,7 @@ import Footer from './components/Footer';
 import VideoModal from './components/VideoModal';
 
 export default function App() {
-  const [showIntro, setShowIntro] = useState(false); // Bypassed for now per user request
+  const [showIntro, setShowIntro] = useState(true); // Enabled by default for all visitors
   const [selectedVideo, setSelectedVideo] = useState(null);
   const [isVideoModalOpen, setIsVideoModalOpen] = useState(false);
   const [isDarkMode, setIsDarkMode] = useState(false); // Default to Light Mode (Kunain Paper Theme)

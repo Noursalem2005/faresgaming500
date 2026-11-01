@@ -1,13 +1,128 @@
 import React, { useEffect, useRef, useState } from 'react';
 
 export default function IntroSequence({ onDone, enabled = true }) {
-  const videoRef = useRef(null);
   const canvasRef = useRef(null);
   const [captionVisible, setCaptionVisible] = useState(false);
-  const [videoLoaded, setVideoLoaded] = useState(false);
   const [fadeOut, setFadeOut] = useState(false);
   const hasFinishedRef = useRef(false);
   const animRef = useRef(null);
+
+  // Sound triggers & AudioContext ref
+  const audioCtxRef = useRef(null);
+  const playedStreak1Audio = useRef(false);
+  const playedStreak2Audio = useRef(false);
+  const playedImpactAudio = useRef(false);
+
+  const getAudioContext = () => {
+    if (!audioCtxRef.current) {
+      const AudioCtx = window.AudioContext || window.webkitAudioContext;
+      if (AudioCtx) {
+        audioCtxRef.current = new AudioCtx();
+      }
+    }
+    if (audioCtxRef.current && audioCtxRef.current.state === 'suspended') {
+      audioCtxRef.current.resume().catch(() => {});
+    }
+    return audioCtxRef.current;
+  };
+
+  // High-impact sword slash sound (Hybrid: HTML5 Audio + Web Audio API synthesizer)
+  const playBladeSlash = (pitch = 1.0, intensity = 1.0) => {
+    // 1. Direct HTML5 Audio playback for maximum compatibility
+    try {
+      const slashAudio = new Audio('/assets/slash.wav');
+      slashAudio.volume = Math.min(1, 0.65 * intensity);
+      slashAudio.playbackRate = pitch;
+      slashAudio.play().catch(() => {});
+    } catch {}
+
+    // 2. Procedural Web Audio API synthesizer for the whoosh + steel slice
+    const ctx = getAudioContext();
+    if (!ctx) return;
+
+    try {
+      const t = ctx.currentTime;
+
+      // Air displacement / Whoosh (filtered noise sweep)
+      const bufferSize = Math.floor(ctx.sampleRate * 0.32);
+      const noiseBuffer = ctx.createBuffer(1, bufferSize, ctx.sampleRate);
+      const output = noiseBuffer.getChannelData(0);
+      for (let i = 0; i < bufferSize; i++) {
+        output[i] = Math.random() * 2 - 1;
+      }
+
+      const whiteNoise = ctx.createBufferSource();
+      whiteNoise.buffer = noiseBuffer;
+
+      const filter = ctx.createBiquadFilter();
+      filter.type = 'bandpass';
+      filter.frequency.setValueAtTime(3400 * pitch, t);
+      filter.frequency.exponentialRampToValueAtTime(320 * pitch, t + 0.26);
+      filter.Q.setValueAtTime(3.2, t);
+
+      const noiseGain = ctx.createGain();
+      noiseGain.gain.setValueAtTime(0.001, t);
+      noiseGain.gain.linearRampToValueAtTime(0.42 * intensity, t + 0.03);
+      noiseGain.gain.exponentialRampToValueAtTime(0.0001, t + 0.3);
+
+      whiteNoise.connect(filter);
+      filter.connect(noiseGain);
+      noiseGain.connect(ctx.destination);
+
+      whiteNoise.start(t);
+      whiteNoise.stop(t + 0.32);
+
+      // Steel blade resonance (metallic edge)
+      const steelOsc = ctx.createOscillator();
+      steelOsc.type = 'sine';
+      steelOsc.frequency.setValueAtTime(2100 * pitch, t);
+      steelOsc.frequency.exponentialRampToValueAtTime(1100 * pitch, t + 0.2);
+
+      const steelGain = ctx.createGain();
+      steelGain.gain.setValueAtTime(0.001, t);
+      steelGain.gain.linearRampToValueAtTime(0.22 * intensity, t + 0.02);
+      steelGain.gain.exponentialRampToValueAtTime(0.0001, t + 0.24);
+
+      steelOsc.connect(steelGain);
+      steelGain.connect(ctx.destination);
+
+      steelOsc.start(t);
+      steelOsc.stop(t + 0.25);
+    } catch {}
+  };
+
+  const playBladeImpact = () => {
+    const ctx = getAudioContext();
+    if (!ctx) return;
+
+    try {
+      const t = ctx.currentTime;
+
+      const osc1 = ctx.createOscillator();
+      osc1.type = 'triangle';
+      osc1.frequency.setValueAtTime(2600, t);
+      osc1.frequency.exponentialRampToValueAtTime(1300, t + 0.35);
+
+      const osc2 = ctx.createOscillator();
+      osc2.type = 'sine';
+      osc2.frequency.setValueAtTime(3800, t);
+      osc2.frequency.exponentialRampToValueAtTime(1900, t + 0.45);
+
+      const gain = ctx.createGain();
+      gain.gain.setValueAtTime(0.001, t);
+      gain.gain.linearRampToValueAtTime(0.26, t + 0.02);
+      gain.gain.exponentialRampToValueAtTime(0.0001, t + 0.48);
+
+      osc1.connect(gain);
+      osc2.connect(gain);
+      gain.connect(ctx.destination);
+
+      osc1.start(t);
+      osc2.start(t);
+      osc1.stop(t + 0.5);
+      osc2.stop(t + 0.5);
+    } catch {}
+  };
 
   const finishIntro = () => {
     if (hasFinishedRef.current) return;
@@ -18,28 +133,24 @@ export default function IntroSequence({ onDone, enabled = true }) {
     }, 700);
   };
 
-  // Video Autoplay and Ready Check
-  useEffect(() => {
-    if (videoRef.current) {
-      if (videoRef.current.readyState >= 2) {
-        setVideoLoaded(true);
-      }
-      videoRef.current.play().catch(() => {
-        // Autoplay fallback if needed
-      });
-    }
-  }, []);
-
   useEffect(() => {
     if (!enabled) {
       onDone?.();
       return;
     }
 
-    // Advance smoothly after crossing slash completes (video disabled for now)
+    // Try to unlock audio context immediately on mount & on first interaction
+    getAudioContext();
+    const unlockAudio = () => {
+      getAudioContext();
+    };
+    window.addEventListener('pointerdown', unlockAudio, { once: true });
+    window.addEventListener('keydown', unlockAudio, { once: true });
+
+    // Advance smoothly after crossing slash completes
     const introTimer = setTimeout(() => {
       finishIntro();
-    }, 2200);
+    }, 2400);
 
     const canvas = canvasRef.current;
     if (!canvas) return;
@@ -82,7 +193,14 @@ export default function IntroSequence({ onDone, enabled = true }) {
       const elapsed = now - startTime;
       ctx.clearRect(0, 0, width, height);
 
-      // Streak 1 (300ms to 900ms)
+      // Streak 1 (300ms to 950ms) + Sound
+      if (elapsed >= 300) {
+        if (!playedStreak1Audio.current) {
+          playedStreak1Audio.current = true;
+          playBladeSlash(1.0, 1.0);
+        }
+      }
+
       if (elapsed >= 300 && elapsed <= 950) {
         const p1 = Math.min(1, (elapsed - 300) / 420);
         const pt = streak1(p1);
@@ -117,7 +235,14 @@ export default function IntroSequence({ onDone, enabled = true }) {
         ctx.restore();
       }
 
-      // Streak 2 (480ms to 1050ms)
+      // Streak 2 (480ms to 1100ms) + Sound
+      if (elapsed >= 480) {
+        if (!playedStreak2Audio.current) {
+          playedStreak2Audio.current = true;
+          playBladeSlash(1.18, 0.95);
+        }
+      }
+
       if (elapsed >= 480 && elapsed <= 1100) {
         const p2 = Math.min(1, (elapsed - 480) / 400);
         const pt2 = streak2(p2);
@@ -141,7 +266,14 @@ export default function IntroSequence({ onDone, enabled = true }) {
         ctx.restore();
       }
 
-      // Cross Glint Flash (650ms to 900ms)
+      // Cross Glint Flash (650ms to 900ms) + Metallic Strike
+      if (elapsed >= 650) {
+        if (!playedImpactAudio.current) {
+          playedImpactAudio.current = true;
+          playBladeImpact();
+        }
+      }
+
       if (elapsed >= 650 && elapsed <= 900) {
         const flashProgress = (elapsed - 650) / 250;
         const flashAlpha = Math.sin(flashProgress * Math.PI) * 0.8;
@@ -204,6 +336,7 @@ export default function IntroSequence({ onDone, enabled = true }) {
       clearTimeout(introTimer);
       window.removeEventListener('resize', handleResize);
       window.removeEventListener('keydown', handleKeyDown);
+      window.removeEventListener('pointerdown', unlockAudio);
       if (animRef.current) cancelAnimationFrame(animRef.current);
     };
   }, [enabled, captionVisible]);
@@ -220,34 +353,10 @@ export default function IntroSequence({ onDone, enabled = true }) {
         background: 'radial-gradient(1800px 700px at 50% 30%, #082260 0%, #05184a 25%, #041038 55%, #02071f 100%)',
       }}
     >
-      {/* 1. Fullscreen Cinematic Moving Viego Video (Disabled for now per user request, code preserved) */}
-      {/* 
-      <div className="absolute inset-0 flex items-center justify-center overflow-hidden pointer-events-none">
-        <video
-          ref={videoRef}
-          src="/assets/viego-cinematic.mp4"
-          autoPlay
-          muted
-          playsInline
-          onCanPlay={() => setVideoLoaded(true)}
-          onEnded={finishIntro}
-          className={`w-full max-w-[1400px] h-[92vh] object-contain transition-opacity duration-1000 ${
-            videoLoaded ? 'opacity-95' : 'opacity-0'
-          }`}
-          style={{
-            mixBlendMode: 'screen',
-            maskImage: 'radial-gradient(ellipse 80% 80% at 50% 50%, black 50%, transparent 95%)',
-            WebkitMaskImage: 'radial-gradient(ellipse 80% 80% at 50% 50%, black 50%, transparent 95%)',
-            filter: 'drop-shadow(0 0 60px rgba(56, 189, 248, 0.45))',
-          }}
-        />
-      </div>
-      */}
-
-      {/* 2. Crossing Slash Canvas Layer */}
+      {/* 1. Crossing Slash Canvas Layer */}
       <canvas ref={canvasRef} className="absolute inset-0 w-full h-full pointer-events-none z-10" />
 
-      {/* 3. Centered Title Overlay */}
+      {/* 2. Centered Title Overlay */}
       <div className="relative z-20 text-center px-4 max-w-4xl mx-auto flex flex-col items-center pointer-events-none">
         <h1
           className={`font-black uppercase tracking-tighter transition-all duration-600 font-display ${
