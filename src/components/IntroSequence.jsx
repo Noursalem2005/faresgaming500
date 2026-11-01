@@ -1,5 +1,4 @@
 import React, { useEffect, useRef, useState } from 'react';
-import sound from '../utils/audio';
 
 export default function IntroSequence({ onDone, enabled = true }) {
   const canvasRef = useRef(null);
@@ -7,9 +6,6 @@ export default function IntroSequence({ onDone, enabled = true }) {
   const [fadeOut, setFadeOut] = useState(false);
   const hasFinishedRef = useRef(false);
   const animRef = useRef(null);
-
-  const playedStreak1Audio = useRef(false);
-  const playedStreak2Audio = useRef(false);
 
   const finishIntro = () => {
     if (hasFinishedRef.current) return;
@@ -26,15 +22,7 @@ export default function IntroSequence({ onDone, enabled = true }) {
       return;
     }
 
-    // Initialize & unlock Web Audio on first user interaction or mount
-    sound.init();
-    const unlockAudio = () => {
-      sound.init();
-    };
-    window.addEventListener('pointerdown', unlockAudio, { once: true });
-    window.addEventListener('keydown', unlockAudio, { once: true });
-
-    // Advance smoothly after crossing slash completes
+    // Advance smoothly after crossing slash completes (Silent Kunain-style)
     const introTimer = setTimeout(() => {
       finishIntro();
     }, 2400);
@@ -80,14 +68,7 @@ export default function IntroSequence({ onDone, enabled = true }) {
       const elapsed = now - startTime;
       ctx.clearRect(0, 0, width, height);
 
-      // Streak 1 (300ms to 950ms) + Original Cool Blade Slash Sound
-      if (elapsed >= 300) {
-        if (!playedStreak1Audio.current) {
-          playedStreak1Audio.current = true;
-          sound.playBladeSlash();
-        }
-      }
-
+      // Streak 1 (300ms to 950ms)
       if (elapsed >= 300 && elapsed <= 950) {
         const p1 = Math.min(1, (elapsed - 300) / 420);
         const pt = streak1(p1);
@@ -122,14 +103,7 @@ export default function IntroSequence({ onDone, enabled = true }) {
         ctx.restore();
       }
 
-      // Streak 2 (480ms to 1100ms) + Original Cool Blade Slash Sound
-      if (elapsed >= 480) {
-        if (!playedStreak2Audio.current) {
-          playedStreak2Audio.current = true;
-          sound.playBladeSlash();
-        }
-      }
-
+      // Streak 2 (480ms to 1100ms)
       if (elapsed >= 480 && elapsed <= 1100) {
         const p2 = Math.min(1, (elapsed - 480) / 400);
         const pt2 = streak2(p2);
@@ -216,7 +190,6 @@ export default function IntroSequence({ onDone, enabled = true }) {
       clearTimeout(introTimer);
       window.removeEventListener('resize', handleResize);
       window.removeEventListener('keydown', handleKeyDown);
-      window.removeEventListener('pointerdown', unlockAudio);
       if (animRef.current) cancelAnimationFrame(animRef.current);
     };
   }, [enabled, captionVisible]);
@@ -236,32 +209,52 @@ export default function IntroSequence({ onDone, enabled = true }) {
       {/* 1. Crossing Slash Canvas Layer */}
       <canvas ref={canvasRef} className="absolute inset-0 w-full h-full pointer-events-none z-10" />
 
-      {/* 2. Centered Title Overlay */}
-      <div className="relative z-20 text-center px-4 max-w-4xl mx-auto flex flex-col items-center pointer-events-none">
-        <h1
-          className={`font-black uppercase tracking-tighter transition-all duration-600 font-display ${
+      {/* 2. Centered Title Overlay with Circular Emblem in the Top-Middle */}
+      <div className="relative z-20 text-center px-4 max-w-5xl mx-auto flex flex-col items-center pointer-events-none">
+        
+        {/* Main Brand Title: FARES [Circular Emblem] GAMING */}
+        <div
+          className={`font-black uppercase tracking-tighter transition-all duration-700 ease-out font-display flex items-center justify-center flex-nowrap ${
             captionVisible
               ? 'opacity-100 translate-y-0 filter-none'
               : 'opacity-0 translate-y-4 blur-xs'
           }`}
           style={{
-            fontSize: 'clamp(44px, 7.5vw, 96px)',
+            fontSize: 'clamp(36px, 6.8vw, 92px)',
             lineHeight: 0.9,
             letterSpacing: '-0.05em',
             color: '#ffffff',
-            textShadow: '0 0 40px rgba(56, 189, 248, 0.5)'
+            textShadow: '0 0 45px rgba(56, 189, 248, 0.55)'
           }}
         >
-          FARES GAMING
-        </h1>
+          <span>FARES</span>
 
+          {/* Circular Clipped Emblem - Positioned in the top middle between the two words */}
+          <div className="relative mx-3 sm:mx-4.5 lg:mx-6 -translate-y-2.5 sm:-translate-y-3.5 lg:-translate-y-5 inline-flex items-center justify-center shrink-0">
+            <div className="w-[clamp(42px,5.5vw,78px)] h-[clamp(42px,5.5vw,78px)] rounded-full overflow-hidden border-2 border-[#38bdf8] shadow-[0_0_28px_rgba(56,189,248,0.65)] bg-[#040b1e] p-[1.5px] transition-transform duration-500">
+              <img
+                src="/assets/fares-emblem.webp"
+                alt="Fares Gaming Emblem"
+                className="w-full h-full object-cover rounded-full select-none"
+                loading="eager"
+              />
+            </div>
+            {/* Subtle Ethereal Pulse Ring */}
+            <div className="absolute inset-0 rounded-full border border-[#78d0ff]/50 scale-110 pointer-events-none animate-pulse" />
+          </div>
+
+          <span>GAMING</span>
+        </div>
+
+        {/* Subtitle */}
         <p
-          className={`mt-3 text-xs md:text-sm font-semibold tracking-[0.28em] text-[#78d0ff] uppercase transition-all duration-600 delay-100 ${
+          className={`mt-4 text-xs md:text-sm font-semibold tracking-[0.28em] text-[#78d0ff] uppercase transition-all duration-600 delay-100 ${
             captionVisible ? 'opacity-100 translate-y-0' : 'opacity-0 translate-y-2'
           }`}
         >
           MASTER TIER · EUW JUNGLE
         </p>
+
       </div>
 
       {/* Skip Hint */}
