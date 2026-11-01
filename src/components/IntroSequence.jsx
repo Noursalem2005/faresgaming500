@@ -13,7 +13,7 @@ export default function IntroSequence({ onDone, enabled = true }) {
     setFadeOut(true);
     setTimeout(() => {
       onDone?.();
-    }, 700);
+    }, 500);
   };
 
   useEffect(() => {
@@ -22,10 +22,10 @@ export default function IntroSequence({ onDone, enabled = true }) {
       return;
     }
 
-    // Advance smoothly after crossing slash completes (Silent Kunain-style)
+    // Fastened by 1s (1400ms total duration, fast and snappy Kunain speed)
     const introTimer = setTimeout(() => {
       finishIntro();
-    }, 2400);
+    }, 1400);
 
     const canvas = canvasRef.current;
     if (!canvas) return;
@@ -68,18 +68,18 @@ export default function IntroSequence({ onDone, enabled = true }) {
       const elapsed = now - startTime;
       ctx.clearRect(0, 0, width, height);
 
-      // Streak 1 (300ms to 950ms)
-      if (elapsed >= 300 && elapsed <= 950) {
-        const p1 = Math.min(1, (elapsed - 300) / 420);
+      // Fast Streak 1 (120ms to 540ms)
+      if (elapsed >= 120 && elapsed <= 560) {
+        const p1 = Math.min(1, (elapsed - 120) / 320);
         const pt = streak1(p1);
-        const fade = elapsed > 650 ? Math.max(0, 1 - (elapsed - 650) / 300) : 1;
+        const fade = elapsed > 380 ? Math.max(0, 1 - (elapsed - 380) / 180) : 1;
 
         if (p1 < 1 && Math.random() > 0.4) {
           sparks.push({
             x: pt.x,
             y: pt.y,
-            vx: (Math.random() - 0.5) * 4,
-            vy: (Math.random() - 0.5) * 4,
+            vx: (Math.random() - 0.5) * 5,
+            vy: (Math.random() - 0.5) * 5,
             life: 1,
             size: 1.5 + Math.random() * 2
           });
@@ -103,11 +103,11 @@ export default function IntroSequence({ onDone, enabled = true }) {
         ctx.restore();
       }
 
-      // Streak 2 (480ms to 1100ms)
-      if (elapsed >= 480 && elapsed <= 1100) {
-        const p2 = Math.min(1, (elapsed - 480) / 400);
+      // Fast Streak 2 (220ms to 640ms)
+      if (elapsed >= 220 && elapsed <= 660) {
+        const p2 = Math.min(1, (elapsed - 220) / 320);
         const pt2 = streak2(p2);
-        const fade2 = elapsed > 820 ? Math.max(0, 1 - (elapsed - 820) / 280) : 1;
+        const fade2 = elapsed > 480 ? Math.max(0, 1 - (elapsed - 480) / 180) : 1;
 
         ctx.save();
         ctx.strokeStyle = `rgba(120, 208, 255, ${0.95 * fade2})`;
@@ -127,30 +127,30 @@ export default function IntroSequence({ onDone, enabled = true }) {
         ctx.restore();
       }
 
-      // Cross Glint Flash (650ms to 900ms)
-      if (elapsed >= 650 && elapsed <= 900) {
-        const flashProgress = (elapsed - 650) / 250;
-        const flashAlpha = Math.sin(flashProgress * Math.PI) * 0.8;
+      // Fast Cross Glint Flash (340ms to 560ms)
+      if (elapsed >= 340 && elapsed <= 560) {
+        const flashProgress = (elapsed - 340) / 220;
+        const flashAlpha = Math.sin(flashProgress * Math.PI) * 0.85;
         const cx = width * 0.5;
         const cy = height * 0.48;
 
         ctx.save();
-        const flashGrad = ctx.createRadialGradient(cx, cy, 0, cx, cy, 100);
+        const flashGrad = ctx.createRadialGradient(cx, cy, 0, cx, cy, 110);
         flashGrad.addColorStop(0, `rgba(255, 255, 255, ${flashAlpha})`);
         flashGrad.addColorStop(0.4, `rgba(120, 208, 255, ${flashAlpha * 0.6})`);
         flashGrad.addColorStop(1, 'rgba(120, 208, 255, 0)');
         ctx.fillStyle = flashGrad;
         ctx.beginPath();
-        ctx.arc(cx, cy, 100, 0, Math.PI * 2);
+        ctx.arc(cx, cy, 110, 0, Math.PI * 2);
         ctx.fill();
 
         ctx.strokeStyle = `rgba(255, 255, 255, ${flashAlpha})`;
         ctx.lineWidth = 1.5;
         ctx.beginPath();
-        ctx.moveTo(cx - 35 * flashAlpha, cy);
-        ctx.lineTo(cx + 35 * flashAlpha, cy);
-        ctx.moveTo(cx, cy - 35 * flashAlpha);
-        ctx.lineTo(cx, cy + 35 * flashAlpha);
+        ctx.moveTo(cx - 40 * flashAlpha, cy);
+        ctx.lineTo(cx + 40 * flashAlpha, cy);
+        ctx.moveTo(cx, cy - 40 * flashAlpha);
+        ctx.lineTo(cx, cy + 40 * flashAlpha);
         ctx.stroke();
         ctx.restore();
       }
@@ -160,7 +160,7 @@ export default function IntroSequence({ onDone, enabled = true }) {
         const s = sparks[i];
         s.x += s.vx;
         s.y += s.vy;
-        s.life -= 0.04;
+        s.life -= 0.055;
         if (s.life <= 0) {
           sparks.splice(i, 1);
           continue;
@@ -171,8 +171,8 @@ export default function IntroSequence({ onDone, enabled = true }) {
         ctx.fill();
       }
 
-      // Caption Reveal
-      if (elapsed >= 750 && !captionVisible) {
+      // Caption Reveal (Fast: at 420ms right as glint peaks)
+      if (elapsed >= 420 && !captionVisible) {
         setCaptionVisible(true);
       }
 
@@ -199,7 +199,7 @@ export default function IntroSequence({ onDone, enabled = true }) {
   return (
     <div
       onClick={finishIntro}
-      className={`fixed inset-0 z-50 flex items-center justify-center cursor-pointer select-none transition-all duration-700 ease-out ${
+      className={`fixed inset-0 z-50 flex items-center justify-center cursor-pointer select-none transition-all duration-500 ease-out ${
         fadeOut ? 'opacity-0 scale-105 pointer-events-none' : 'opacity-100 scale-100'
       }`}
       style={{
@@ -209,15 +209,15 @@ export default function IntroSequence({ onDone, enabled = true }) {
       {/* 1. Crossing Slash Canvas Layer */}
       <canvas ref={canvasRef} className="absolute inset-0 w-full h-full pointer-events-none z-10" />
 
-      {/* 2. Centered Title Overlay with Circular Emblem in the Top-Middle */}
-      <div className="relative z-20 text-center px-4 max-w-5xl mx-auto flex flex-col items-center pointer-events-none">
+      {/* 2. Centered Title Overlay with Mathematically Centered Circular Emblem */}
+      <div className="relative z-20 text-center px-4 max-w-5xl w-full mx-auto flex flex-col items-center pointer-events-none">
         
-        {/* Main Brand Title: FARES [Circular Emblem] GAMING */}
+        {/* Perfectly Balanced 3-Column Grid: Left (FARES) | Dead-Center (Emblem) | Right (GAMING) */}
         <div
-          className={`font-black uppercase tracking-tighter transition-all duration-700 ease-out font-display flex items-center justify-center flex-nowrap ${
+          className={`w-full grid grid-cols-[1fr_auto_1fr] items-center font-black uppercase tracking-tighter transition-all duration-500 ease-out font-display ${
             captionVisible
               ? 'opacity-100 translate-y-0 filter-none'
-              : 'opacity-0 translate-y-4 blur-xs'
+              : 'opacity-0 translate-y-3 blur-xs'
           }`}
           style={{
             fontSize: 'clamp(36px, 6.8vw, 92px)',
@@ -227,10 +227,13 @@ export default function IntroSequence({ onDone, enabled = true }) {
             textShadow: '0 0 45px rgba(56, 189, 248, 0.55)'
           }}
         >
-          <span>FARES</span>
+          {/* Left Wing (1fr) - Right-aligned to hug the center emblem */}
+          <div className="text-right pr-3.5 sm:pr-5 lg:pr-6">
+            <span>FARES</span>
+          </div>
 
-          {/* Circular Clipped Emblem - Positioned in the top middle between the two words */}
-          <div className="relative mx-3 sm:mx-4.5 lg:mx-6 -translate-y-2.5 sm:-translate-y-3.5 lg:-translate-y-5 inline-flex items-center justify-center shrink-0">
+          {/* EXACT Center (Auto) - Positioned at 50% dead center, elevated slightly to top-middle */}
+          <div className="relative -translate-y-2.5 sm:-translate-y-3.5 lg:-translate-y-4 inline-flex items-center justify-center shrink-0">
             <div className="w-[clamp(42px,5.5vw,78px)] h-[clamp(42px,5.5vw,78px)] rounded-full overflow-hidden border-2 border-[#38bdf8] shadow-[0_0_28px_rgba(56,189,248,0.65)] bg-[#040b1e] p-[1.5px] transition-transform duration-500">
               <img
                 src="/assets/fares-emblem.webp"
@@ -243,12 +246,15 @@ export default function IntroSequence({ onDone, enabled = true }) {
             <div className="absolute inset-0 rounded-full border border-[#78d0ff]/50 scale-110 pointer-events-none animate-pulse" />
           </div>
 
-          <span>GAMING</span>
+          {/* Right Wing (1fr) - Left-aligned to mirror the left side identically */}
+          <div className="text-left pl-3.5 sm:pl-5 lg:pl-6">
+            <span>GAMING</span>
+          </div>
         </div>
 
         {/* Subtitle */}
         <p
-          className={`mt-4 text-xs md:text-sm font-semibold tracking-[0.28em] text-[#78d0ff] uppercase transition-all duration-600 delay-100 ${
+          className={`mt-4 text-xs md:text-sm font-semibold tracking-[0.28em] text-[#78d0ff] uppercase transition-all duration-500 delay-100 ${
             captionVisible ? 'opacity-100 translate-y-0' : 'opacity-0 translate-y-2'
           }`}
         >
