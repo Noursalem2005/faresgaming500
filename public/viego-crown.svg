@@ -1,0 +1,24 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 100 100" fill="none">
+  <defs>
+    <linearGradient id="mistGrad" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" stop-color="#00ffb3" />
+      <stop offset="50%" stop-color="#08cf9e" />
+      <stop offset="100%" stop-color="#033a30" />
+    </linearGradient>
+    <filter id="glow" x="-20%" y="-20%" width="140%" height="140%">
+      <feGaussianBlur stdDeviation="3" result="blur" />
+      <feMerge>
+        <feMergeNode in="blur" />
+        <feMergeNode in="SourceGraphic" />
+      </feMerge>
+    </filter>
+  </defs>
+  <!-- Background Dark Disc -->
+  <circle cx="50" cy="50" r="46" fill="#07131b" stroke="#00ffb3" stroke-width="2" stroke-opacity="0.4" />
+  
+  <!-- Viego's Jagged Crown -->
+  <path d="M22 68 L28 42 L38 56 L50 24 L62 56 L72 42 L78 68 Z" fill="url(#mistGrad)" filter="url(#glow)" stroke="#00ffb3" stroke-width="1.5" />
+  
+  <!-- Ruined Heart / Chest Triangle Emblem -->
+  <polygon points="50,62 44,72 56,72" fill="#00ffb3" opacity="0.9" />
+</svg>
